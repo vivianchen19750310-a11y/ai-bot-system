@@ -1,19 +1,25 @@
-import csv
+import gspread
+import json
+import os
+from google.oauth2.service_account import Credentials
 from datetime import datetime
 
-def save_to_csv(message, category):
-    file_name = "lead_list.csv"
+# 從 GitHub Secret 讀取 JSON
+creds_dict = json.loads(os.environ["GOOGLE_CREDENTIALS"])
+
+scope = ["https://www.googleapis.com/auth/spreadsheets"]
+creds = Credentials.from_service_account_info(creds_dict, scopes=scope)
+client = gspread.authorize(creds)
+
+# 開啟試算表
+sheet = client.open("IG名單系統").sheet1
+
+def save_to_sheet(message, category):
     time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
-    with open(file_name, "a", newline="", encoding="utf-8") as f:
-        writer = csv.writer(f)
-        writer.writerow([time, message, category])
-
-    print("已寫入名單：", message, category)
-
+    sheet.append_row([time, message, category])
+    print("已寫入Google Sheet：", message, category)
 
 def bot_reply(message):
-
     if "懶人包" in message:
         category = "懶人包"
     elif "團購" in message:
@@ -23,10 +29,9 @@ def bot_reply(message):
     else:
         category = "其他"
 
-    save_to_csv(message, category)
+    save_to_sheet(message, category)
 
-
-# 模擬留言
+# 測試
 bot_reply("懶人包")
 bot_reply("團購優惠")
 bot_reply("保健推薦")
