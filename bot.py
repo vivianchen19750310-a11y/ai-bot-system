@@ -7,7 +7,10 @@ from datetime import datetime
 # 從 GitHub Secret 讀取 JSON
 creds_dict = json.loads(os.environ["GOOGLE_CREDENTIALS"])
 
-scope = ["https://www.googleapis.com/auth/spreadsheets"]
+scope = [
+    "https://www.googleapis.com/auth/spreadsheets",
+    "https://www.googleapis.com/auth/drive"
+    
 creds = Credentials.from_service_account_info(creds_dict, scopes=scope)
 client = gspread.authorize(creds)
 
